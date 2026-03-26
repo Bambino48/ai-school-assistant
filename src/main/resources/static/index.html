@@ -139,12 +139,10 @@
 
         const bubbleDiv = document.createElement("div");
         bubbleDiv.classList.add("bubble");
-
         bubbleDiv.innerHTML = formatMessage(content);
 
         messageDiv.appendChild(bubbleDiv);
         chatBox.appendChild(messageDiv);
-
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 
@@ -157,12 +155,11 @@
     async function sendMessage() {
         const message = messageInput.value.trim();
 
-        if (!message) {
-            return;
-        }
+        if (!message) return;
 
         addMessage(message, "user");
         messageInput.value = "";
+
         typingIndicator.classList.remove("d-none");
         sendButton.disabled = true;
         messageInput.disabled = true;
@@ -176,21 +173,20 @@
                 body: JSON.stringify({ message: message })
             });
 
-            if (!response.ok) {
-                throw new Error("Erreur HTTP : " + response.status);
-            }
+            console.log("HTTP status:", response.status);
 
             const data = await response.json();
+            console.log("Response JSON:", data);
 
-            if (data.status === "success") {
+            if (response.ok && data.status === "success") {
                 addMessage(data.message, "bot");
             } else {
-                addMessage("Une erreur est survenue : " + data.message, "bot");
+                addMessage("Erreur : " + (data.message || "réponse invalide"), "bot");
             }
 
         } catch (error) {
+            console.error("Erreur fetch:", error);
             addMessage("Impossible de contacter le serveur ou l’IA.", "bot");
-            console.error(error);
         } finally {
             typingIndicator.classList.add("d-none");
             sendButton.disabled = false;
@@ -207,6 +203,5 @@
         }
     });
 </script>
-
 </body>
 </html>
