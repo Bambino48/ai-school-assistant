@@ -305,14 +305,43 @@
                     item.dataset.id = conversation.id;
 
                     item.innerHTML = `
-                        <div class="history-title">Conversation #${conversation.id}</div>
-                        <div class="history-date">${new Date(conversation.createdAt).toLocaleString("fr-FR")}</div>
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="history-title">Conversation #${conversation.id}</div>
+                                <div class="history-date">${new Date(conversation.createdAt).toLocaleString("fr-FR")}</div>
+                            </div>
+                            <button class="btn btn-sm btn-danger delete-btn">🗑</button>
+                        </div>
                     `;
 
                     item.addEventListener("click", async () => {
                         currentConversationId = conversation.id;
                         await loadMessages(conversation.id);
                         highlightActiveConversation();
+                    });
+
+                    const deleteBtn = item.querySelector(".delete-btn");
+
+                    deleteBtn.addEventListener("click", async (e) => {
+                        e.stopPropagation();
+
+                        if (!confirm("Supprimer cette conversation ?")) return;
+
+                        try {
+                            await fetch(`/api/conversations/${conversation.id}`, {
+                                method: "DELETE"
+                            });
+
+                            if (currentConversationId === conversation.id) {
+                                currentConversationId = null;
+                                resetChatBox();
+                            }
+
+                            loadConversations();
+
+                        } catch (error) {
+                            console.error("Erreur suppression :", error);
+                        }
                     });
 
                     historyList.appendChild(item);

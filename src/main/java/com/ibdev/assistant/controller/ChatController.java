@@ -36,4 +36,9 @@ public class ChatController {
     public List<MessageDto> getMessagesByConversation(@PathVariable Long id) {
         return conversationService.getMessagesByConversation(id);
     }
+
+    @DeleteMapping("/conversations/{id}")
+    public void deleteConversation(@PathVariable Long id) {
+        conversationService.deleteConversation(id);
+    }
 }

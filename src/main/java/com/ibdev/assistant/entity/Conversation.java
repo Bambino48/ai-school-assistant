@@ -13,7 +13,7 @@ public class Conversation {
 
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Message> messages;
 
     @PrePersist

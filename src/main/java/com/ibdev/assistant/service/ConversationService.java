@@ -88,4 +88,8 @@ public class ConversationService {
                 ))
                 .toList();
     }
+
+    public void deleteConversation(Long id) {
+        conversationRepository.deleteById(id);
+    }
 }
