@@ -103,6 +103,11 @@
             background: #f1f6ff;
         }
 
+        .history-item.active {
+            border: 2px solid #0d6efd;
+            background: #eef5ff;
+        }
+
         .history-title {
             font-weight: 600;
             font-size: 0.95rem;
@@ -112,6 +117,19 @@
             font-size: 0.85rem;
             color: #6c757d;
         }
+
+        .section-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            gap: 10px;
+        }
+
+        .empty-history {
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
     </style>
 </head>
 <body>
@@ -120,7 +138,12 @@
     <div class="row g-4">
         <div class="col-md-4">
             <div class="history-panel">
-                <h4 class="mb-3">Historique</h4>
+                <div class="section-top">
+                    <h4 class="mb-0">Historique</h4>
+                    <button class="btn btn-outline-primary btn-sm" id="newConversationButton">
+                        Nouvelle conversation
+                    </button>
+                </div>
                 <div id="historyList"></div>
             </div>
         </div>
@@ -162,6 +185,9 @@
     const messageInput = document.getElementById("messageInput");
     const sendButton = document.getElementById("sendButton");
     const typingIndicator = document.getElementById("typingIndicator");
+    const newConversationButton = document.getElementById("newConversationButton");
+
+    let currentConversationId = null;
 
     function addMessage(content, sender) {
         const messageDiv = document.createElement("div");
@@ -177,9 +203,32 @@
     }
 
     function formatMessage(text) {
+        if (!text) return "";
         return text
             .replace(/\n/g, "<br>")
             .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    }
+
+    function resetChatBox() {
+        chatBox.innerHTML = `
+            <div class="message bot">
+                <div class="bubble">
+                    Bonjour 👋 Je suis ton assistant d’orientation scolaire. Pose-moi une question.
+                </div>
+            </div>
+        `;
+    }
+
+    function highlightActiveConversation() {
+        const items = document.querySelectorAll(".history-item");
+        items.forEach(item => {
+            const conversationId = Number(item.dataset.id);
+            if (conversationId === currentConversationId) {
+                item.classList.add("active");
+            } else {
+                item.classList.remove("active");
+            }
+        });
     }
 
     async function sendMessage() {
@@ -200,20 +249,33 @@
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ message: message })
+                body: JSON.stringify({
+                    message: message,
+                    conversationId: currentConversationId
+                })
             });
 
             const data = await response.json();
 
             if (response.ok && data.status === "success") {
                 addMessage(data.message, "bot");
-                loadConversations();
+
+                await loadConversations();
+
+                if (!currentConversationId) {
+                    const firstItem = document.querySelector(".history-item");
+                    if (firstItem) {
+                        currentConversationId = Number(firstItem.dataset.id);
+                    }
+                }
+
+                highlightActiveConversation();
             } else {
                 addMessage("Erreur : " + (data.message || "réponse invalide"), "bot");
             }
 
         } catch (error) {
-            console.error(error);
+            console.error("Erreur lors de l'envoi :", error);
             addMessage("Impossible de contacter le serveur ou l’IA.", "bot");
         } finally {
             typingIndicator.classList.add("d-none");
@@ -230,21 +292,33 @@
 
             historyList.innerHTML = "";
 
+            if (!conversations || conversations.length === 0) {
+                historyList.innerHTML = `<p class="empty-history">Aucune conversation enregistrée.</p>`;
+                return;
+            }
+
             conversations
                 .sort((a, b) => b.id - a.id)
                 .forEach(conversation => {
                     const item = document.createElement("div");
                     item.classList.add("history-item");
+                    item.dataset.id = conversation.id;
 
                     item.innerHTML = `
                         <div class="history-title">Conversation #${conversation.id}</div>
-                        <div class="history-date">${new Date(conversation.createdAt).toLocaleString()}</div>
+                        <div class="history-date">${new Date(conversation.createdAt).toLocaleString("fr-FR")}</div>
                     `;
 
-                    item.addEventListener("click", () => loadMessages(conversation.id));
+                    item.addEventListener("click", async () => {
+                        currentConversationId = conversation.id;
+                        await loadMessages(conversation.id);
+                        highlightActiveConversation();
+                    });
 
                     historyList.appendChild(item);
                 });
+
+            highlightActiveConversation();
 
         } catch (error) {
             console.error("Erreur chargement historique :", error);
@@ -257,6 +331,11 @@
             const messages = await response.json();
 
             chatBox.innerHTML = "";
+
+            if (!messages || messages.length === 0) {
+                resetChatBox();
+                return;
+            }
 
             messages.forEach(message => {
                 if (message.role === "USER") {
@@ -271,6 +350,13 @@
         }
     }
 
+    function startNewConversation() {
+        currentConversationId = null;
+        resetChatBox();
+        highlightActiveConversation();
+        messageInput.focus();
+    }
+
     sendButton.addEventListener("click", sendMessage);
 
     messageInput.addEventListener("keypress", function(event) {
@@ -278,6 +364,8 @@
             sendMessage();
         }
     });
+
+    newConversationButton.addEventListener("click", startNewConversation);
 
     loadConversations();
 </script>

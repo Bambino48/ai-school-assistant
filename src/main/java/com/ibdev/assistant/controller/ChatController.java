@@ -34,12 +34,25 @@ public class ChatController {
         try {
             String userMessage = request.getMessage();
 
-            if (userMessage == null || userMessage.isEmpty()) {
+            if (userMessage == null || userMessage.trim().isEmpty()) {
                 return new MessageResponse("Message vide interdit", "error");
             }
 
-            Conversation conversation = new Conversation();
-            conversation = conversationRepository.save(conversation);
+            Conversation conversation;
+            List<Message> historyBeforeReply;
+
+            if (request.getConversationId() != null) {
+                conversation = conversationRepository
+                        .findById(request.getConversationId())
+                        .orElseThrow(() -> new RuntimeException("Conversation introuvable"));
+
+                historyBeforeReply = messageRepository
+                        .findByConversationIdOrderByTimestampAsc(conversation.getId());
+            } else {
+                conversation = new Conversation();
+                conversation = conversationRepository.save(conversation);
+                historyBeforeReply = List.of();
+            }
 
             Message userMsg = new Message();
             userMsg.setContent(userMessage);
@@ -47,7 +60,7 @@ public class ChatController {
             userMsg.setConversation(conversation);
             messageRepository.save(userMsg);
 
-            String aiResponse = aiService.askAi(userMessage);
+            String aiResponse = aiService.askAiWithContext(historyBeforeReply, userMessage);
 
             Message aiMsg = new Message();
             aiMsg.setContent(aiResponse);
