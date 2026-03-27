@@ -10,8 +10,12 @@
 <div class="app-shell">
     <aside class="sidebar">
         <div class="sidebar-header">
-            <h1>Historique</h1>
-            <button id="newConversationButton" class="btn btn-outline">
+            <div class="sidebar-header-text">
+                <h1>Historique</h1>
+                <p>Retrouve tes conversations récentes</p>
+            </div>
+
+            <button id="newConversationButton" class="btn btn-outline" type="button">
                 Nouvelle conversation
             </button>
         </div>
@@ -21,6 +25,7 @@
 
     <main class="chat-panel">
         <header class="chat-header">
+            <div class="chat-header-badge">Assistant intelligent</div>
             <h2>Assistant IA d’orientation scolaire</h2>
             <p>Pose ta question sur les filières, les études et l’orientation.</p>
         </header>
@@ -39,11 +44,14 @@
                         id="messageInput"
                         rows="1"
                         placeholder="Exemple : Quelle filière choisir après le bac ?"></textarea>
-                <button id="sendButton" class="btn btn-primary">Envoyer</button>
+
+                <button id="sendButton" class="btn btn-primary" type="button">
+                    Envoyer
+                </button>
             </div>
 
             <div id="typingIndicator" class="typing hidden">
-                L’assistant écrit sa réponse...
+                L’assistant écrit sa réponse
             </div>
         </footer>
     </main>

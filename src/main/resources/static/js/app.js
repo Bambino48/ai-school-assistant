@@ -24,8 +24,10 @@ function formatMessage(text) {
 
     let safe = escapeHtml(text);
 
+    safe = safe.replace(/^---$/gm, "<hr>");
     safe = safe.replace(/^### (.*)$/gm, "<h4>$1</h4>");
     safe = safe.replace(/^## (.*)$/gm, "<h3>$1</h3>");
+    safe = safe.replace(/^# (.*)$/gm, "<h2>$1</h2>");
     safe = safe.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
     safe = safe.replace(/^\* (.*)$/gm, "<li>$1</li>");
     safe = safe.replace(/(<li>.*<\/li>)/gs, "<ul>$1</ul>");
@@ -51,6 +53,17 @@ function scrollChatToBottom() {
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+function animateMessageIn(messageDiv) {
+    messageDiv.style.opacity = "0";
+    messageDiv.style.transform = "translateY(10px)";
+    messageDiv.style.transition = "opacity 0.25s ease, transform 0.25s ease";
+
+    requestAnimationFrame(() => {
+        messageDiv.style.opacity = "1";
+        messageDiv.style.transform = "translateY(0)";
+    });
+}
+
 function createMessageBubble(sender, content = "") {
     const messageDiv = document.createElement("div");
     messageDiv.classList.add("message", sender);
@@ -62,7 +75,9 @@ function createMessageBubble(sender, content = "") {
     messageDiv.appendChild(bubbleDiv);
     chatBox.appendChild(messageDiv);
 
+    animateMessageIn(messageDiv);
     scrollChatToBottom();
+
     return bubbleDiv;
 }
 
@@ -190,7 +205,7 @@ async function renderChunkProgressively(botBubble, fullTextRef, textChunk) {
         scrollChatToBottom();
 
         await nextFrame();
-        await delay(8);
+        await delay(12);
     }
 }
 
@@ -201,7 +216,6 @@ function extractSseData(line) {
 
     let data = line.slice(5);
 
-    // SSE autorise un espace optionnel après "data:"
     if (data.startsWith(" ")) {
         data = data.slice(1);
     }
