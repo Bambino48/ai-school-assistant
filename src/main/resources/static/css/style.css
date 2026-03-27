@@ -237,6 +237,42 @@ textarea {
     min-height: 0;
 }
 
+.empty-state {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--muted);
+    padding: 24px;
+}
+
+.empty-state-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 22px;
+    display: grid;
+    place-items: center;
+    font-size: 2rem;
+    background: linear-gradient(135deg, #e8f1ff, #dceaff);
+    color: var(--primary);
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 14px;
+}
+
+.empty-state h3 {
+    margin: 0 0 8px;
+    color: var(--text);
+    font-size: 1.2rem;
+}
+
+.empty-state p {
+    margin: 0;
+    max-width: 420px;
+    line-height: 1.55;
+}
+
 .message {
     display: flex;
     margin-bottom: 14px;
@@ -249,6 +285,37 @@ textarea {
 
 .message.bot {
     justify-content: flex-start;
+}
+
+.message-inner {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    max-width: 100%;
+}
+
+.message.user .message-inner {
+    flex-direction: row-reverse;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    font-size: 1rem;
+    box-shadow: var(--shadow-soft);
+}
+
+.avatar.bot {
+    background: linear-gradient(135deg, #dbe9ff, #eef5ff);
+}
+
+.avatar.user {
+    background: linear-gradient(135deg, #1f6fff, #4d8dff);
+    color: #fff;
 }
 
 .bubble {
@@ -408,10 +475,11 @@ textarea {
 .btn-primary {
     background: var(--primary);
     color: #fff;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 106px;
+    gap: 8px;
+    min-width: 110px;
     min-height: 52px;
     box-shadow: 0 10px 20px rgba(31, 111, 255, 0.2);
 }
@@ -422,6 +490,15 @@ textarea {
 
 .btn-primary:active {
     transform: scale(0.96);
+}
+
+.send-icon {
+    font-size: 0.95rem;
+    line-height: 1;
+}
+
+.send-label {
+    line-height: 1;
 }
 
 .btn-outline {

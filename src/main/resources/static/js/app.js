@@ -46,7 +46,7 @@ function nextFrame() {
 
 function autoResizeTextarea() {
     messageInput.style.height = "auto";
-    messageInput.style.height = `${Math.min(messageInput.scrollHeight, 180)}px`;
+    messageInput.style.height = `${Math.min(messageInput.scrollHeight, 140)}px`;
 }
 
 function scrollChatToBottom() {
@@ -68,11 +68,20 @@ function createMessageBubble(sender, content = "") {
     const messageDiv = document.createElement("div");
     messageDiv.classList.add("message", sender);
 
+    const inner = document.createElement("div");
+    inner.classList.add("message-inner");
+
+    const avatar = document.createElement("div");
+    avatar.classList.add("avatar", sender);
+    avatar.textContent = sender === "user" ? "👤" : "🤖";
+
     const bubbleDiv = document.createElement("div");
     bubbleDiv.classList.add("bubble");
     bubbleDiv.innerHTML = formatMessage(content);
 
-    messageDiv.appendChild(bubbleDiv);
+    inner.appendChild(avatar);
+    inner.appendChild(bubbleDiv);
+    messageDiv.appendChild(inner);
     chatBox.appendChild(messageDiv);
 
     animateMessageIn(messageDiv);
@@ -86,8 +95,20 @@ function addMessage(content, sender) {
 }
 
 function resetChatBox() {
-    chatBox.innerHTML = "";
-    addMessage("Bonjour 👋 Je suis ton assistant d’orientation scolaire. Pose-moi une question.", "bot");
+    chatBox.innerHTML = `
+        <div class="empty-state">
+            <div class="empty-state-icon">🎓</div>
+            <h3>Bienvenue</h3>
+            <p>Je suis ton assistant d’orientation scolaire. Pose-moi une question pour commencer.</p>
+        </div>
+    `;
+}
+
+function clearEmptyStateIfNeeded() {
+    const emptyState = chatBox.querySelector(".empty-state");
+    if (emptyState) {
+        chatBox.innerHTML = "";
+    }
 }
 
 function setStreamingState(isStreaming) {
@@ -205,7 +226,7 @@ async function renderChunkProgressively(botBubble, fullTextRef, textChunk) {
         scrollChatToBottom();
 
         await nextFrame();
-        await delay(12);
+        await delay(8);
     }
 }
 
@@ -230,6 +251,7 @@ async function sendStreamingMessage() {
         return;
     }
 
+    clearEmptyStateIfNeeded();
     addMessage(message, "user");
     messageInput.value = "";
     autoResizeTextarea();

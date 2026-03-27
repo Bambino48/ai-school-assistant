@@ -31,10 +31,10 @@
         </header>
 
         <section id="chatBox" class="chat-box">
-            <div class="message bot">
-                <div class="bubble">
-                    Bonjour 👋 Je suis ton assistant d’orientation scolaire. Pose-moi une question.
-                </div>
+            <div class="empty-state">
+                <div class="empty-state-icon">🎓</div>
+                <h3>Bienvenue</h3>
+                <p>Je suis ton assistant d’orientation scolaire. Pose-moi une question pour commencer.</p>
             </div>
         </section>
 
@@ -45,8 +45,9 @@
                         rows="1"
                         placeholder="Exemple : Quelle filière choisir après le bac ?"></textarea>
 
-                <button id="sendButton" class="btn btn-primary" type="button">
-                    Envoyer
+                <button id="sendButton" class="btn btn-primary" type="button" aria-label="Envoyer">
+                    <span class="send-icon" aria-hidden="true">➤</span>
+                    <span class="send-label">Envoyer</span>
                 </button>
             </div>
 
